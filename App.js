@@ -38,18 +38,18 @@ var port = '';
 
 // console.log(myip.getLocalIP4());
 
-if (process.argv[2] == null) {
-  console.log('\nERROR : you did not enter the usb port.\n   node app.js <Arduino port> <server port>')
-  process.exit();
-};
+// if (process.argv[2] == null) {
+//   console.log('\nERROR : you did not enter the usb port.\n   node app.js <Arduino port> <server port>')
+//   process.exit();
+// };
 
-PORT = process.argv[3];
-if (process.argv[3] == null) {
+// PORT = process.argv[2];
+if (process.argv[2] == null) {
   PORT = '4000';
-  console.log('\nWARNING : you did not enter the server port\n    node app.js <Arduino port> <server port>\n.    default server port is 4000.\n\n')
+  console.log('\nWARNING : you did not enter the server port\n    node app.js <server port>\n.    default server port is 4000.\n\n')
 }
 
-USB = process.argv[2];
+// USB = process.argv[2];
 // console.log('Arduino port          : '+USB)
 // console.log('Server listening port : '+PORT)
 
