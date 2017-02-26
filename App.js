@@ -8,6 +8,7 @@ var SerialPort = require('serialport');
 var prompt = require('prompt');
 var bodyParser = require('body-parser');
 var myip = require('quick-local-ip');
+const NE = require('node-exceptions')
 
 app.use(bodyParser.urlencoded({ extended: true })); 
 
@@ -21,8 +22,11 @@ var FLAG_4 = '0';
 var FLAG_5 = '0';
 var FLAG_6 = '0';
 
-var USB = '';
-var PORT = ''
+var FLAG_USB = '1';
+
+var USB  = '';
+var PORT = '';
+var port = '';
 // function getinputs() {
 //   prompt.start();
 //   prompt.get(['username', 'email'], function (err, result) {
@@ -49,26 +53,10 @@ USB = process.argv[2];
 // console.log('Arduino port          : '+USB)
 // console.log('Server listening port : '+PORT)
 
-var port = new SerialPort(USB, {
-  baudrate: 9600,
-  bufferSize: 1 ,
-  rtscts: true ,
-});
-
-port.on('data', function (data) {
-  var data_R = data.toString('utf8');
-  if (data_R == 'D'){
-    io.emit('data', res);
-    // console.log(res);
-    res = '';
-  }
-  res = res.concat(data_R);
-});
-
 io.on('connection', function(socket){
   console.log('User connected');
   socket.on('message', function(msg){
-    // console.log('message: ' + msg);
+    console.log('message: ' + msg);
     if((FLAG_1 == '0') && (msg == '1')){
       FLAG_1 = '1';
       port.write('1');
@@ -115,11 +103,48 @@ io.on('connection', function(socket){
     }else if((FLAG_6 == '1') && (msg == '6')){
       FLAG_6 = '0';
       port.write('12');
+    }else{
+      try {
+        if(msg.substring(0,3) == 'dev'){
+        Arduino(msg);
+        }
+        if(msg.substring(0,3) == 'COM'){
+          Arduino(msg);
+        }
+      } catch (e) {
+        console.log(e.status) // equals 500 
+        console.log(e.name) // equals MyCustomError 
+        console.log(e.message) // Something bad happened 
+        console.log(e.stack) // Error stack with correct reference to filepath and linenum 
+        console.log(e.toString()) // MyCustomError: Something bad happened 
+      }
     }
+
+    // console.log(msg.substring(0,3));
+    
     
   });
 });
 
+function Arduino(USB) {
+  port = new SerialPort(USB, {
+          baudrate: 9600,
+          bufferSize: 1 ,
+          rtscts: true ,
+        });
+
+  port.on('data', function (data) {
+    var data_R = data.toString('utf8');
+    if (data_R == 'D'){
+      io.emit('data', res);
+      // console.log(res);
+      res = '';
+    }
+    res = res.concat(data_R);
+  });
+}
+
+// Arduino();
 /*Create http server*/
 app.get('/', function(req, res){
   // console.log(res)
